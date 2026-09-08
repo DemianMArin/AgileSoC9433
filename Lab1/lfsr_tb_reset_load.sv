@@ -32,8 +32,12 @@ initial begin: testbench
   #1;
   load = 0;
 
-  // apply synchronous reset
+  // apply synchronous reset - state must not change until the clock edge
   reset = 1;
+  if (lfsr_out !== 7'b0101010) begin // reset must not act combinationally
+    $display("@@@FAIL");
+    $finish;
+  end
   @(posedge clk);
   #1;
   if (lfsr_out !== 7'b1111111) begin
@@ -50,25 +54,24 @@ initial begin: testbench
   end
   reset = 0;
 
-  // load should copy seed into the LFSR
-  load = 1;
-  seed = 7'b1100111;
-  @(posedge clk);
-  #1;
-  if (lfsr_out !== seed) begin
-    $display("@@@FAIL");
-    $finish;
-  end
-  load = 0;
-
-  // a different seed value should load correctly too
-  load = 1;
-  seed = 7'b0000001;
-  @(posedge clk);
-  #1;
-  if (lfsr_out !== seed) begin
-    $display("@@@FAIL");
-    $finish;
+  // load should copy seed into the LFSR - walking-1 across every bit
+  // position catches wrong wiring / swapped bits that a single fixed
+  // seed value could miss
+  for (int i = 0; i < 7; i++) begin
+    automatic logic [6:0] prev = lfsr_out;
+    load = 1;
+    seed = 7'b0000000;
+    seed[i] = 1'b1;
+    if (lfsr_out !== prev) begin // load must not act combinationally
+      $display("@@@FAIL");
+      $finish;
+    end
+    @(posedge clk);
+    #1;
+    if (lfsr_out !== seed) begin
+      $display("@@@FAIL");
+      $finish;
+    end
   end
 
   // reset takes precedence over load when both asserted

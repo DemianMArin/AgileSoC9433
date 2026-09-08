@@ -82,7 +82,9 @@ initial begin: testbench
   enable = 0;
 
   // ---------------------------------------------------------------
-  // full sequence/period: 127 shifts from the seed return to the seed
+  // full sequence/period: check every one of the 127 shifts against an
+  // independently-computed reference model (not just period length,
+  // which other tap positions could also satisfy)
   // ---------------------------------------------------------------
   load = 1;
   seed = 7'b1100111;
@@ -90,20 +92,26 @@ initial begin: testbench
   #1;
   load = 0;
 
-  enable = 1;
-  for (int i = 0; i < 127; i++) begin
-    @(posedge clk);
-    #1;
-    if (lfsr_out === 7'b1100111 && i != 126) begin // seed must not repeat early
+  begin
+    automatic logic [6:0] expected = seed;
+    automatic logic       fb;
+    enable = 1;
+    for (int i = 0; i < 127; i++) begin
+      fb       = expected[6] ^ expected[5];
+      expected = {expected[5:0], fb};
+      @(posedge clk);
+      #1;
+      if (lfsr_out !== expected) begin
+        $display("@@@FAIL");
+        $finish;
+      end
+    end
+    enable = 0;
+
+    if (lfsr_out !== seed) begin // cycle 127 -> back to seed
       $display("@@@FAIL");
       $finish;
     end
-  end
-  enable = 0;
-
-  if (lfsr_out !== 7'b1100111) begin // cycle 127 -> back to seed
-    $display("@@@FAIL");
-    $finish;
   end
 
   $display("@@@PASS");
