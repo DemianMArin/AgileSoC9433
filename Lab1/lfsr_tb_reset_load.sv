@@ -50,6 +50,39 @@ initial begin: testbench
   end
   reset = 0;
 
+  // load should copy seed into the LFSR
+  load = 1;
+  seed = 7'b1100111;
+  @(posedge clk);
+  #1;
+  if (lfsr_out !== seed) begin
+    $display("@@@FAIL");
+    $finish;
+  end
+  load = 0;
+
+  // a different seed value should load correctly too
+  load = 1;
+  seed = 7'b0000001;
+  @(posedge clk);
+  #1;
+  if (lfsr_out !== seed) begin
+    $display("@@@FAIL");
+    $finish;
+  end
+
+  // reset takes precedence over load when both asserted
+  reset = 1;
+  seed  = 7'b0101010;
+  @(posedge clk);
+  #1;
+  if (lfsr_out !== 7'b1111111) begin
+    $display("@@@FAIL");
+    $finish;
+  end
+  reset = 0;
+  load  = 0;
+
   $display("@@@PASS");
   $finish;
 end: testbench
