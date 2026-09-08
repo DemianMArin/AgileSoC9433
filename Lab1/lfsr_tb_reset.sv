@@ -1,5 +1,3 @@
-`timescale 1ns/1ns
-
 module lfsr_tb_reset();
 
 logic clk;
@@ -15,6 +13,11 @@ initial begin: clk_gen
   clk = 0;
   forever #5 clk = ~clk;
 end: clk_gen
+
+// initial begin: fsdb_dump
+//   $fsdbDumpfile("dump.fsdb");
+//   $fsdbDumpvars;
+// end: fsdb_dump
 
 initial begin: testbench
   reset  = 0;
