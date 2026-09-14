@@ -16,3 +16,5 @@ Hw2/*.txt
 *.synctex.gz.sum.synctex
 *.synctex.gz
 *.log
+Slides/
+main.py
