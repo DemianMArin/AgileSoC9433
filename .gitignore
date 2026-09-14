@@ -1,5 +1,5 @@
 csrc/  
-dump.fsdb  
+*.fsdb  
 novas_dump.log  
 simv  
 simv.daidir/  
