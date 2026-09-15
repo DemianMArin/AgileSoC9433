@@ -19,6 +19,7 @@ module spi_sub (
 
   logic [FRAME_BITS-1:0] rx_shift;
   logic [FRAME_BITS-1:0] tx_shift;
+  logic [FRAME_BITS-1:0] resp_data;
   logic [5:0]            bit_cnt;
 
   wire [1:0]  op_r    = rx_shift[43:42];
@@ -48,9 +49,9 @@ module spi_sub (
         MEM: begin
           // r_en/w_en (below) held high this whole state, one full cycle;
           // data_i is valid this same cycle for reads
-          tx_shift <= (op_r == 2'b11) ? rx_shift : {op_r, addr_r, data_i}; // 11 write, 10 read
-          bit_cnt  <= 0;
-          state    <= TX;
+          resp_data <= (op_r == 2'b11) ? rx_shift : {op_r, addr_r, data_i}; // 11 write, 10 read
+          bit_cnt   <= 0;
+          state     <= TX;
         end
         TX: begin
           bit_cnt <= bit_cnt + 1;
@@ -69,10 +70,17 @@ module spi_sub (
   // ---------------- drive phase: shift response out on negedge ----------------
   always_ff @(negedge sclk) begin
     if (cs_n) begin
-      miso <= 1'b0;
+      miso     <= 1'b0;
+      tx_shift <= '0;
     end else if (state == TX) begin
-      miso     <= tx_shift[FRAME_BITS-1];
-      tx_shift <= {tx_shift[FRAME_BITS-2:0], 1'b0};
+      if (bit_cnt == 0) begin
+        // first TX bit: load from resp_data (latched this same cycle by MEM->TX posedge)
+        miso     <= resp_data[FRAME_BITS-1];
+        tx_shift <= {resp_data[FRAME_BITS-2:0], 1'b0};
+      end else begin
+        miso     <= tx_shift[FRAME_BITS-1];
+        tx_shift <= {tx_shift[FRAME_BITS-2:0], 1'b0};
+      end
     end else begin
       miso <= 1'b0;
     end
