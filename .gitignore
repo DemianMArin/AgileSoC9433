@@ -7,6 +7,7 @@ ucli.key
 verdi_config_file
 help_commands.txt
 Lab2/*.txt
+Lab2/*.md
 Lab3/*.txt
 Lab5/*.txt
 Project/*.txt
