@@ -41,8 +41,8 @@ module spi_tb (
     // 2-cycle latency: slave WAIT -> MEM before it starts driving miso
     @(negedge sclk); mosi = 0;
     @(negedge sclk); mosi = 0;
-
-    #5 // push counter to start at negedge of w_en
+    @(posedge sclk); mosi = 0; //counter should start in posedge after w_en is enabled and after first bit is sent
+    
     // response phase: sample miso, MSB first
     for (i = 0; i < FRAME_BITS; i++) begin
       @(posedge sclk); //missing 2 bits
