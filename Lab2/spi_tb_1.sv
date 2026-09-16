@@ -10,6 +10,8 @@ module spi_tb (
   logic [1:0]  op    = 2'b11;          // write
   logic [9:0]  addr  = {2'b00, 8'h2B}; // addr = 43
   logic [31:0] data  = 32'hDEADBEEF;
+  //logic [31:0] data  = 32'h00000005;
+
 
   logic [FRAME_BITS-1:0] tx_frame;
   logic [FRAME_BITS-1:0] echo;
@@ -40,12 +42,13 @@ module spi_tb (
     @(negedge sclk); mosi = 0;
     @(negedge sclk); mosi = 0;
 
+    #5 // push counter to start at negedge of w_en
     // response phase: sample miso, MSB first
     for (i = 0; i < FRAME_BITS; i++) begin
-      @(posedge sclk);
+      @(posedge sclk); //missing 2 bits
       echo[FRAME_BITS-1-i] = miso;
     end
-
+    
     @(negedge sclk);
     cs_n = 1;
     mosi = 0;

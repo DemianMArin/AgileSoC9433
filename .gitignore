@@ -22,5 +22,9 @@ main.py
 novas.rc
 nWaveLog
 novas.conf
+.inter.fsdb*
+inter.fsdb*
+verdiLog/
+.vcs_*
 
 
