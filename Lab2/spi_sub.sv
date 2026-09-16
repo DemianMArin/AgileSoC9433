@@ -34,9 +34,13 @@ module spi_sub (
     end else begin
       unique case (state)
         IDLE: begin
-          rx_shift <= {rx_shift[FRAME_BITS-2:0], mosi};
-          bit_cnt  <= 1;
-          state    <= RX;
+          if (mosi) begin
+            // start bit seen; frame begins here (tolerate arbitrary delay of 0s before this)
+            rx_shift <= {rx_shift[FRAME_BITS-2:0], mosi};
+            bit_cnt  <= 1;
+            state    <= RX;
+          end
+          // else: stay in IDLE, discard the 0 bit
         end
         RX: begin
           rx_shift <= {rx_shift[FRAME_BITS-2:0], mosi};

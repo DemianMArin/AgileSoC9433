@@ -62,6 +62,7 @@ module spi_tb (
     do_txn(2'b11, {2'b00, 8'h2B}, 32'hDEADBEE1, echo_wr);
     if (echo_wr !== {2'b11, 10'({2'b00, 8'h2B}), 32'hDEADBEE1})
       $display("FAIL write: echoed %h", echo_wr);
+      $display("@@@FAIL");
     else
       $display("PASS write: echoed %h", echo_wr);
 
@@ -72,9 +73,11 @@ module spi_tb (
     do_txn(2'b10, {2'b00, 8'h2B}, 32'hAAAAAAAA, echo_rd);
     if (echo_rd[31:0] !== 32'hDEADBEE1)
       $display("FAIL read: expected %h, got %h", 32'hDEADBEE1, echo_rd[31:0]);
+      $display("@@@FAIL");
     else
       $display("PASS read: echoed data %h matches write", echo_rd[31:0]);
 
+    $display("@@@PASS");
     #20 $finish;
   end
 
