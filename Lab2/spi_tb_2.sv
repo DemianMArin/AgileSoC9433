@@ -60,22 +60,24 @@ module spi_tb (
 
     // write DEADBEE1 to addr 43
     do_txn(2'b11, {2'b00, 8'h2B}, 32'hDEADBEE1, echo_wr);
-    if (echo_wr !== {2'b11, 10'({2'b00, 8'h2B}), 32'hDEADBEE1})
+    if (echo_wr !== {2'b11, 10'({2'b00, 8'h2B}), 32'hDEADBEE1}) begin
       $display("FAIL write: echoed %h", echo_wr);
       $display("@@@FAIL");
-    else
+    end else begin
       $display("PASS write: echoed %h", echo_wr);
+    end
 
     // one idle cs_n=1 negedge between transactions
     @(negedge sclk);
 
     // read back addr 43, data field don't-care on the wire
     do_txn(2'b10, {2'b00, 8'h2B}, 32'hAAAAAAAA, echo_rd);
-    if (echo_rd[31:0] !== 32'hDEADBEE1)
+    if (echo_rd[31:0] !== 32'hDEADBEE1) begin
       $display("FAIL read: expected %h, got %h", 32'hDEADBEE1, echo_rd[31:0]);
       $display("@@@FAIL");
-    else
+    end else begin
       $display("PASS read: echoed data %h matches write", echo_rd[31:0]);
+    end
 
     $display("@@@PASS");
     #20 $finish;

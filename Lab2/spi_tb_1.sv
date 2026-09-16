@@ -53,11 +53,12 @@ module spi_tb (
     cs_n = 1;
     mosi = 0;
 
-    if (echo !== tx_frame)
+    if (echo !== tx_frame) begin
       $display("FAIL: sent %h, echoed %h", tx_frame, echo);
       $display("@@@FAIL");
-    else
+    end else begin
       $display("PASS: write echoed back %h", echo);
+    end
 
     $display("@@@PASS");
     #20 $finish;
