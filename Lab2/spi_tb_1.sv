@@ -58,9 +58,9 @@ module spi_tb (
       $display("@@@FAIL");
     end else begin
       $display("PASS: write echoed back %h", echo);
+      $display("@@@PASS");
     end
 
-    $display("@@@PASS");
     #20 $finish;
   end
 
